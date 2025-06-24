@@ -1,16 +1,53 @@
-// 제외할 페이지 URL 패턴들
-const EXCLUDED_PAGES = [
-    '/admin/',           // 관리자 페이지
-    '/login',           // 로그인 페이지
-    // 인코딩된 한글 URL도 함께 추가 (안전장치)
-    '/%EA%B4%80%EB%A6%AC%EC%9E%90/',  // '관리자' 인코딩된 버전
-    // 필요에 따라 추가
-];
+// Configuration URLs - 리퍼러에 따라 다른 URL 사용
+const URLS = {
+    welfare: {
+        neullida: 'https://health.neullida.kr/정부지원금/#section1',
+        totalwellness: 'https://spa.totalwellnessarena.com/custom-welfare-bokjiro-guide/',
+        default: 'https://health.neullida.kr/정부지원금/#section1'
+    },
+    insurance: {
+        neullida: 'https://info.neullida.kr/정부지원금/#section2',
+        totalwellness: 'https://spa.totalwellnessarena.com/korea-insurance-claim-guide/',
+        default: 'https://info.neullida.kr/정부지원금/#section2'
+    },
+    banner: {
+        neullida: 'https://level.neullida.kr/정부지원금/#section3',
+        totalwellness: 'https://spa.totalwellnessarena.com/korea-insurance-claim-guide/',
+        default: 'https://level.neullida.kr/정부지원금/#section3'
+    },
+    // 팝업이 뜨지 않을 페이지들
+    excludePopup: [
+        'https://health.neullida.kr/정부지원금/',
+        'https://info.neullida.kr/정부지원금/',
+        'https://level.neullida.kr/정부지원금/',
+        'https://spa.totalwellnessarena.com/custom-welfare-bokjiro-guide/',
+        'https://spa.totalwellnessarena.com/korea-insurance-claim-guide/'
+    ]
+};
+
+// 리퍼러에 따라 적절한 URL 선택
+function getUrlByReferrer(urlGroup) {
+    const referrer = document.referrer;
+    console.log('리퍼러:', referrer); // 디버깅용
+    
+    if (referrer.includes('neullida.kr')) {
+        console.log('neullida.kr에서 방문');
+        return urlGroup.neullida;
+    } else if (referrer.includes('totalwellnessarena.com')) {
+        console.log('totalwellnessarena.com에서 방문');
+        return urlGroup.totalwellness;
+    } else {
+        console.log('기타 사이트에서 방문, 기본 URL 사용');
+        return urlGroup.default;
+    }
+}
 
 // 현재 페이지가 제외 대상인지 확인
 function shouldExcludePage() {
     const currentPath = window.location.pathname;
     const currentUrl = window.location.href;
+    
+    console.log('현재 페이지 체크:', currentPath, currentUrl); // 디버깅용
     
     // URL 디코딩 처리 (한글 URL 지원)
     let decodedPath = '';
@@ -25,24 +62,65 @@ function shouldExcludePage() {
         decodedUrl = currentUrl;
     }
     
-    return EXCLUDED_PAGES.some(pattern => {
+    console.log('디코딩된 URL:', decodedPath, decodedUrl); // 디버깅용
+    
+    // # 해시 제거한 URL도 준비
+    const currentUrlWithoutHash = currentUrl.split('#')[0];
+    const decodedUrlWithoutHash = decodedUrl.split('#')[0];
+    
+    // URLS.excludePopup만 체크
+    const allExcludedPages = URLS.excludePopup;
+    
+    console.log('제외 페이지 목록:', allExcludedPages); // 디버깅용
+    
+    const isExcluded = allExcludedPages.some(pattern => {
         // 원본 URL과 디코딩된 URL 모두 체크
         const pathsToCheck = [currentPath, decodedPath];
-        const urlsToCheck = [currentUrl, decodedUrl];
+        const urlsToCheck = [
+            currentUrl, 
+            decodedUrl, 
+            currentUrlWithoutHash, 
+            decodedUrlWithoutHash
+        ];
+        
+        // 패턴도 # 제거한 버전 준비
+        const patternWithoutHash = pattern.split('#')[0];
+        const patternsToCheck = [pattern, patternWithoutHash];
         
         // 경로 매칭 체크
         for (const path of pathsToCheck) {
-            if (path === pattern) return true;
-            if (path.includes(pattern)) return true;
+            for (const pat of patternsToCheck) {
+                if (path === pat) {
+                    console.log('경로 매칭됨:', path, '===', pat);
+                    return true;
+                }
+                if (path.includes(pat)) {
+                    console.log('경로 포함됨:', path, 'includes', pat);
+                    return true;
+                }
+            }
         }
         
         // 전체 URL 매칭 체크
         for (const url of urlsToCheck) {
-            if (url.includes(pattern)) return true;
+            for (const pat of patternsToCheck) {
+                if (url.includes(pat)) {
+                    console.log('URL 포함됨:', url, 'includes', pat);
+                    return true;
+                }
+                // 정확한 URL 매칭 (도메인 포함)
+                if (url === pat) {
+                    console.log('URL 매칭됨:', url, '===', pat);
+                    return true;
+                }
+            }
         }
         
         return false;
     });
+    
+    console.log('페이지 제외 여부:', isExcluded); // 디버깅용
+    return isExcluded;
 }
 
 // 제외 페이지에서는 스크립트 종료
@@ -52,37 +130,6 @@ if (shouldExcludePage()) {
 } else {
     // 기존 스크립트 실행
     
-    // Configuration URLs - 각각 여러 개의 URL을 배열로 관리
-    const URLS = {
-        welfare: [
-            'https://health.neullida.kr/정부지원금/#section1',
-            'https://spa.totalwellnessarena.com/custom-welfare-bokjiro-guide/'
-        ],
-        insurance: [
-            'https://info.neullida.kr/정부지원금/#section2',
-            'https://spa.totalwellnessarena.com/korea-insurance-claim-guide/'
-        ],
-        banner: [
-            'https://level.neullida.kr/정부지원금/#section3',
-            'https://spa.totalwellnessarena.com/korea-insurance-claim-guide/'
-        ],
-        // 팝업이 뜨지 않을 페이지들 (URLS에 포함된 모든 URL)
-        excludePopup: []
-    };
-
-    // URLS 배열들을 평면화해서 excludePopup에 추가
-    Object.keys(URLS).forEach(key => {
-        if (key !== 'excludePopup' && Array.isArray(URLS[key])) {
-            URLS.excludePopup.push(...URLS[key]);
-        }
-    });
-
-    // 랜덤 URL 선택 함수
-    function getRandomUrl(urlArray) {
-        const randomIndex = Math.floor(Math.random() * urlArray.length);
-        return urlArray[randomIndex];
-    }
-
     // Storage utility functions
     const storage = {
         set: (key, val) => {
@@ -153,7 +200,7 @@ if (shouldExcludePage()) {
         },
         
         click() {
-            window.open(getRandomUrl(URLS.banner), '_blank');
+            window.open(getUrlByReferrer(URLS.banner), '_blank');
             const el = document.getElementById('posFloatingBanner');
             if (el) {
                 el.classList.add('pos-hidden');
@@ -163,8 +210,8 @@ if (shouldExcludePage()) {
     };
 
     // Global action handlers
-    function handleMainAction() { popup.action(getRandomUrl(URLS.welfare)); }
-    function handleDirectAction() { popup.action(getRandomUrl(URLS.insurance)); }
+    function handleMainAction() { popup.action(getUrlByReferrer(URLS.welfare)); }
+    function handleDirectAction() { popup.action(getUrlByReferrer(URLS.insurance)); }
     function handleBannerClick() { banner.click(); }
     function closePopup() { popup.close(); }
     function closeBanner() { banner.close(); }
