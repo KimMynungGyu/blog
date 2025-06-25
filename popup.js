@@ -2,26 +2,27 @@
 const URLS = {
     welfare: {
         neullida: 'https://health.neullida.kr/정부지원금/#section1',
-        totalwellness: 'https://spa.totalwellnessarena.com/custom-welfare-bokjiro-guide/',
-        default: 'https://health.neullida.kr/정부지원금/#section1'
+        totalwellness: 'https://trip.totalwellnessarena.com/정부지원금/#section1',
+        default: 'https://trip.totalwellnessarena.com/정부지원금/#section1'
     },
     insurance: {
         neullida: 'https://info.neullida.kr/정부지원금/#section2',
-        totalwellness: 'https://spa.totalwellnessarena.com/korea-insurance-claim-guide/',
-        default: 'https://info.neullida.kr/정부지원금/#section2'
+        totalwellness: 'https://food.totalwellnessarena.com/정부지원금/#section2',
+        default: 'https://food.totalwellnessarena.com/정부지원금/#section2'
     },
     banner: {
         neullida: 'https://level.neullida.kr/정부지원금/#section3',
-        totalwellness: 'https://spa.totalwellnessarena.com/korea-insurance-claim-guide/',
-        default: 'https://level.neullida.kr/정부지원금/#section3'
+        totalwellness: 'https://hobby.totalwellnessarena.com/정부지원금/#section3',
+        default: 'https://hobby.totalwellnessarena.com/정부지원금/#section3'
     },
     // 팝업이 뜨지 않을 페이지들
     excludePopup: [
         'https://health.neullida.kr/정부지원금/',
         'https://info.neullida.kr/정부지원금/',
         'https://level.neullida.kr/정부지원금/',
-        'https://spa.totalwellnessarena.com/custom-welfare-bokjiro-guide/',
-        'https://spa.totalwellnessarena.com/korea-insurance-claim-guide/',
+        'https://trip.totalwellnessarena.com/정부지원금/',
+        'https://food.totalwellnessarena.com/정부지원금/',
+        'https://hobby.totalwellnessarena.com/정부지원금/',
         'https://neullida.kr/결혼장려금/',
         'https://neullida.kr/경기도청년기본소득/',
         'https://neullida.kr/국민내일배움카드/',
@@ -47,7 +48,33 @@ const URLS = {
         'https://neullida.kr/청년희망적금/',
         'https://neullida.kr/초기창업패키지/',
         'https://neullida.kr/출산축하적금/',
-        'https://neullida.kr/한부모가족지원금/'
+        'https://neullida.kr/한부모가족지원금/',
+        'https://totalwellnessarena.com/결혼장려금/',
+        'https://totalwellnessarena.com/경기도청년기본소득/',
+        'https://totalwellnessarena.com/국민내일배움카드/',
+        'https://totalwellnessarena.com/국민취업지원제도/',
+        'https://totalwellnessarena.com/근로장려금/',
+        'https://totalwellnessarena.com/기초생활보장생계급여/',
+        'https://totalwellnessarena.com/기초연금/',
+        'https://totalwellnessarena.com/긴급복지지원제도/',
+        'https://totalwellnessarena.com/소상공인정책자금/',
+        'https://totalwellnessarena.com/소상공인특화자금/',
+        'https://totalwellnessarena.com/아동수당/',
+        'https://totalwellnessarena.com/에너지바우처/',
+        'https://totalwellnessarena.com/예비창업패키지/',
+        'https://totalwellnessarena.com/의료비지원/',
+        'https://totalwellnessarena.com/자격증지원금/',
+        'https://totalwellnessarena.com/자녀장려금/',
+        'https://totalwellnessarena.com/종합소득세/',
+        'https://totalwellnessarena.com/청년내일채움공제/',
+        'https://totalwellnessarena.com/청년도약계좌/',
+        'https://totalwellnessarena.com/청년면접수당/',
+        'https://totalwellnessarena.com/청년월세지원/',
+        'https://totalwellnessarena.com/청년취업지원금/',
+        'https://totalwellnessarena.com/청년희망적금/',
+        'https://totalwellnessarena.com/초기창업패키지/',
+        'https://totalwellnessarena.com/출산축하적금/',
+        'https://totalwellnessarena.com/한부모가족지원금/'
     ]
 };
 
