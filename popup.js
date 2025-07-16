@@ -15,8 +15,8 @@ const URLS = {
         totalwellness: 'https://hobby.totalwellnessarena.com/정부지원금/#section3',
         default: 'https://hobby.totalwellnessarena.com/정부지원금/#section3'
     },
-    // 팝업이 뜨지 않을 페이지들
-    excludePopup: [
+    // 팝업이 뜨지 않을 페이지들 - Set으로 변환하여 O(1) 검색
+    excludePopup: new Set([
         'https://health.neullida.kr/정부지원금/',
         'https://info.neullida.kr/정부지원금/',
         'https://level.neullida.kr/정부지원금/',
@@ -75,229 +75,213 @@ const URLS = {
         'https://totalwellnessarena.com/초기창업패키지/',
         'https://totalwellnessarena.com/출산축하적금/',
         'https://totalwellnessarena.com/한부모가족지원금/'
-    ]
+    ])
 };
 
-// 리퍼러에 따라 적절한 URL 선택
-function getUrlByReferrer(urlGroup) {
-    const referrer = document.referrer;
-    console.log('리퍼러:', referrer); // 디버깅용
+// 캐시된 값들
+let cachedReferrerType = null;
+let cachedDomElements = {};
+const isProduction = typeof console === 'undefined' || !console.log;
+
+// 개발 모드에서만 로그 출력
+const log = isProduction ? () => {} : console.log.bind(console);
+
+// 리퍼러 타입 캐싱 (한 번만 계산)
+function getReferrerType() {
+    if (cachedReferrerType !== null) return cachedReferrerType;
     
+    const referrer = document.referrer;
     if (referrer.includes('neullida.kr')) {
-        console.log('neullida.kr에서 방문');
-        return urlGroup.neullida;
+        cachedReferrerType = 'neullida';
     } else if (referrer.includes('totalwellnessarena.com')) {
-        console.log('totalwellnessarena.com에서 방문');
-        return urlGroup.totalwellness;
+        cachedReferrerType = 'totalwellness';
     } else {
-        console.log('기타 사이트에서 방문, 기본 URL 사용');
-        return urlGroup.default;
+        cachedReferrerType = 'default';
     }
+    
+    log('리퍼러 타입:', cachedReferrerType);
+    return cachedReferrerType;
 }
 
-// 현재 페이지가 제외 대상인지 확인
+// 리퍼러에 따라 적절한 URL 선택 (캐시된 타입 사용)
+const getUrlByReferrer = (urlGroup) => urlGroup[getReferrerType()];
+
+// 최적화된 페이지 제외 검사
 function shouldExcludePage() {
-    const currentPath = window.location.pathname;
     const currentUrl = window.location.href;
+    const currentUrlWithoutHash = currentUrl.split('#')[0];
     
-    console.log('현재 페이지 체크:', currentPath, currentUrl); // 디버깅용
-    
-    // URL 디코딩 처리 (한글 URL 지원)
-    let decodedPath = '';
-    let decodedUrl = '';
-    
-    try {
-        decodedPath = decodeURIComponent(currentPath);
-        decodedUrl = decodeURIComponent(currentUrl);
-    } catch (e) {
-        // 디코딩 실패 시 원본 사용
-        decodedPath = currentPath;
-        decodedUrl = currentUrl;
+    // 직접 Set 검색 (O(1))
+    if (URLS.excludePopup.has(currentUrl) || URLS.excludePopup.has(currentUrlWithoutHash)) {
+        log('페이지 제외됨 (직접 매칭)');
+        return true;
     }
     
-    console.log('디코딩된 URL:', decodedPath, decodedUrl); // 디버깅용
-    
-    // # 해시 제거한 URL도 준비
-    const currentUrlWithoutHash = currentUrl.split('#')[0];
-    const decodedUrlWithoutHash = decodedUrl.split('#')[0];
-    
-    // URLS.excludePopup만 체크
-    const allExcludedPages = URLS.excludePopup;
-    
-    console.log('제외 페이지 목록:', allExcludedPages); // 디버깅용
-    
-    const isExcluded = allExcludedPages.some(pattern => {
-        // 원본 URL과 디코딩된 URL 모두 체크
-        const pathsToCheck = [currentPath, decodedPath];
-        const urlsToCheck = [
-            currentUrl, 
-            decodedUrl, 
-            currentUrlWithoutHash, 
-            decodedUrlWithoutHash
-        ];
-        
-        // 패턴도 # 제거한 버전 준비
-        const patternWithoutHash = pattern.split('#')[0];
-        const patternsToCheck = [pattern, patternWithoutHash];
-        
-        // 경로 매칭 체크
-        for (const path of pathsToCheck) {
-            for (const pat of patternsToCheck) {
-                if (path === pat) {
-                    console.log('경로 매칭됨:', path, '===', pat);
-                    return true;
-                }
-                if (path.includes(pat)) {
-                    console.log('경로 포함됨:', path, 'includes', pat);
-                    return true;
-                }
+    // URL 디코딩이 필요한 경우만 처리
+    if (currentUrl.includes('%')) {
+        try {
+            const decodedUrl = decodeURIComponent(currentUrl);
+            const decodedUrlWithoutHash = decodedUrl.split('#')[0];
+            
+            if (URLS.excludePopup.has(decodedUrl) || URLS.excludePopup.has(decodedUrlWithoutHash)) {
+                log('페이지 제외됨 (디코딩 후 매칭)');
+                return true;
             }
+        } catch (e) {
+            // 디코딩 실패 시 무시
         }
-        
-        // 전체 URL 매칭 체크
-        for (const url of urlsToCheck) {
-            for (const pat of patternsToCheck) {
-                if (url.includes(pat)) {
-                    console.log('URL 포함됨:', url, 'includes', pat);
-                    return true;
-                }
-                // 정확한 URL 매칭 (도메인 포함)
-                if (url === pat) {
-                    console.log('URL 매칭됨:', url, '===', pat);
-                    return true;
-                }
-            }
-        }
-        
-        return false;
-    });
+    }
     
-    console.log('페이지 제외 여부:', isExcluded); // 디버깅용
-    return isExcluded;
+    log('페이지 포함됨');
+    return false;
 }
+
+// DOM 요소 캐싱
+function getElement(id) {
+    if (!cachedDomElements[id]) {
+        cachedDomElements[id] = document.getElementById(id);
+    }
+    return cachedDomElements[id];
+}
+
+// 효율적인 Storage utility
+const storage = (() => {
+    let useSessionStorage = true;
+    
+    // 세션 스토리지 사용 가능 여부 확인
+    try {
+        sessionStorage.setItem('test', 'test');
+        sessionStorage.removeItem('test');
+    } catch {
+        useSessionStorage = false;
+    }
+    
+    return {
+        set: (key, val) => {
+            if (useSessionStorage) {
+                sessionStorage.setItem(key, val);
+            } else {
+                window[key] = val;
+            }
+        },
+        get: (key) => {
+            return useSessionStorage ? sessionStorage.getItem(key) : window[key];
+        }
+    };
+})();
+
+// Popup management (최적화됨)
+const popup = {
+    isClosed: () => storage.get('pos_popup_closed') === 'true',
+    
+    show() {
+        if (this.isClosed()) return;
+        const el = getElement('posPopupOverlay');
+        if (el) {
+            el.classList.add('pos-show');
+            // 스타일 변경을 한 번에 처리
+            const style = document.documentElement.style;
+            style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+        }
+    },
+    
+    close() {
+        const el = getElement('posPopupOverlay');
+        if (el) {
+            el.classList.remove('pos-show');
+            // 스타일 복원을 한 번에 처리
+            const style = document.documentElement.style;
+            style.overflow = '';
+            document.body.style.overflow = '';
+            storage.set('pos_popup_closed', 'true');
+        }
+    },
+    
+    action(url) {
+        window.open(url, '_blank');
+        this.close();
+    }
+};
+
+// Banner management (최적화됨)
+const banner = {
+    isClosed: () => storage.get('pos_banner_closed') === 'true',
+    
+    show() {
+        if (this.isClosed()) return;
+        const el = getElement('posFloatingBanner');
+        if (el) {
+            el.classList.remove('pos-hidden');
+            el.classList.add('pos-show');
+        }
+    },
+    
+    close() {
+        const el = getElement('posFloatingBanner');
+        if (el) {
+            el.classList.add('pos-hidden');
+            storage.set('pos_banner_closed', 'true');
+        }
+    },
+    
+    click() {
+        window.open(getUrlByReferrer(URLS.banner), '_blank');
+        this.close();
+    }
+};
 
 // 제외 페이지에서는 스크립트 종료
 if (shouldExcludePage()) {
-    console.log('This page is excluded from popup/banner functionality');
-    // 스크립트 실행 중단
+    log('This page is excluded from popup/banner functionality');
 } else {
-    // 기존 스크립트 실행
+    // Global action handlers (arrow functions로 최적화)
+    const handleMainAction = () => popup.action(getUrlByReferrer(URLS.welfare));
+    const handleDirectAction = () => popup.action(getUrlByReferrer(URLS.insurance));
+    const handleBannerClick = () => banner.click();
+    const closePopup = () => popup.close();
+    const closeBanner = () => banner.close();
+
+    // 이벤트 핸들러들을 미리 정의 (재생성 방지)
+    const keydownHandler = (e) => {
+        if (e.key === 'Escape') popup.close();
+    };
     
-    // Storage utility functions
-    const storage = {
-        set: (key, val) => {
-            try { sessionStorage.setItem(key, val); } 
-            catch { window[key] = val; }
-        },
-        get: (key) => {
-            try { return sessionStorage.getItem(key); } 
-            catch { return window[key]; }
+    const overlayClickHandler = (e) => {
+        if (e.target === getElement('posPopupOverlay')) popup.close();
+    };
+    
+    const bannerClickHandler = (e) => {
+        if (!e.target.closest('.pos-close-btn') && !e.target.closest('.pos-banner-button')) {
+            banner.click();
         }
     };
 
-    // Popup management
-    const popup = {
-        isClosed: () => storage.get('pos_popup_closed') === 'true',
-        
-        show() {
-            if (this.isClosed()) return;
-            const el = document.getElementById('posPopupOverlay');
-            if (el) {
-                el.classList.add('pos-show');
-                document.body.style.overflow = 'hidden';
-                document.documentElement.style.overflow = 'hidden';
-            }
-        },
-        
-        close() {
-            const el = document.getElementById('posPopupOverlay');
-            if (el) {
-                el.classList.remove('pos-show');
-                document.body.style.overflow = '';
-                document.documentElement.style.overflow = '';
-                storage.set('pos_popup_closed', 'true');
-            }
-        },
-        
-        action(url) {
-            window.open(url, '_blank');
-            const el = document.getElementById('posPopupOverlay');
-            if (el) {
-                el.classList.remove('pos-show');
-                document.body.style.overflow = '';
-                document.documentElement.style.overflow = '';
-                storage.set('pos_popup_closed', 'true');
-            }
-        }
-    };
-
-    // Banner management
-    const banner = {
-        isClosed: () => storage.get('pos_banner_closed') === 'true',
-        
-        show() {
-            if (this.isClosed()) return;
-            const el = document.getElementById('posFloatingBanner');
-            if (el) {
-                el.classList.remove('pos-hidden');
-                el.classList.add('pos-show');
-            }
-        },
-        
-        close() {
-            const el = document.getElementById('posFloatingBanner');
-            if (el) {
-                el.classList.add('pos-hidden');
-                storage.set('pos_banner_closed', 'true');
-            }
-        },
-        
-        click() {
-            window.open(getUrlByReferrer(URLS.banner), '_blank');
-            const el = document.getElementById('posFloatingBanner');
-            if (el) {
-                el.classList.add('pos-hidden');
-                storage.set('pos_banner_closed', 'true');
-            }
-        }
-    };
-
-    // Global action handlers
-    function handleMainAction() { popup.action(getUrlByReferrer(URLS.welfare)); }
-    function handleDirectAction() { popup.action(getUrlByReferrer(URLS.insurance)); }
-    function handleBannerClick() { banner.click(); }
-    function closePopup() { popup.close(); }
-    function closeBanner() { banner.close(); }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-        // Auto show popup after 3s
+    // Initialize (최적화된 버전)
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeComponents);
+    } else {
+        // 이미 로드된 경우 즉시 실행
+        initializeComponents();
+    }
+    
+    function initializeComponents() {
+        // 타이머들을 한 번에 설정
+        setTimeout(() => banner.show(), 1000);
         setTimeout(() => popup.show(), 3000);
         
-        // Auto show banner after 1s
-        setTimeout(() => banner.show(), 1000);
+        // 이벤트 리스너들을 효율적으로 등록
+        document.addEventListener('keydown', keydownHandler);
         
-        // ESC key handler
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') popup.close();
-        });
-        
-        // Overlay click handler
-        const overlay = document.getElementById('posPopupOverlay');
+        // DOM 요소들이 존재할 때만 이벤트 리스너 등록
+        const overlay = getElement('posPopupOverlay');
         if (overlay) {
-            overlay.addEventListener('click', e => {
-                if (e.target === overlay) popup.close();
-            });
+            overlay.addEventListener('click', overlayClickHandler);
         }
         
-        // Banner click handler
-        const bannerEl = document.getElementById('posFloatingBanner');
+        const bannerEl = getElement('posFloatingBanner');
         if (bannerEl) {
-            bannerEl.addEventListener('click', e => {
-                if (!e.target.closest('.pos-close-btn') && !e.target.closest('.pos-banner-button')) {
-                    banner.click();
-                }
-            });
+            bannerEl.addEventListener('click', bannerClickHandler);
         }
-    });
+    }
 }
