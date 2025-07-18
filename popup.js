@@ -231,17 +231,41 @@ const banner = {
     }
 };
 
-// 제외 페이지에서는 스크립트 종료
+// 전역 함수들 정의 (HTML에서 직접 호출 가능)
+window.handleMainAction = () => {
+    if (!shouldExcludePage()) {
+        popup.action(getUrlByReferrer(URLS.welfare));
+    }
+};
+
+window.handleDirectAction = () => {
+    if (!shouldExcludePage()) {
+        popup.action(getUrlByReferrer(URLS.insurance));
+    }
+};
+
+window.handleBannerClick = () => {
+    if (!shouldExcludePage()) {
+        banner.click();
+    }
+};
+
+window.closePopup = () => {
+    if (!shouldExcludePage()) {
+        popup.close();
+    }
+};
+
+window.closeBanner = () => {
+    if (!shouldExcludePage()) {
+        banner.close();
+    }
+};
+
+// 제외 페이지에서는 팝업/배너 기능만 비활성화, 전역 함수는 유지
 if (shouldExcludePage()) {
     log('This page is excluded from popup/banner functionality');
 } else {
-    // Global action handlers (arrow functions로 최적화)
-    const handleMainAction = () => popup.action(getUrlByReferrer(URLS.welfare));
-    const handleDirectAction = () => popup.action(getUrlByReferrer(URLS.insurance));
-    const handleBannerClick = () => banner.click();
-    const closePopup = () => popup.close();
-    const closeBanner = () => banner.close();
-
     // 이벤트 핸들러들을 미리 정의 (재생성 방지)
     const keydownHandler = (e) => {
         if (e.key === 'Escape') popup.close();
