@@ -144,6 +144,22 @@ function getElement(id) {
     return cachedDomElements[id];
 }
 
+// 모바일 기기 감지
+function isMobileDevice() {
+    // 화면 크기 기반 체크 (768px 이하)
+    const isSmallScreen = window.innerWidth <= 768;
+    
+    // User Agent 기반 체크
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    
+    // 터치 지원 여부 체크
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    // 하나라도 모바일 조건에 해당하면 모바일로 판단
+    return isSmallScreen || isMobileUA || isTouchDevice;
+}
+
 // 효율적인 Storage utility
 const storage = (() => {
     let useSessionStorage = true;
@@ -176,6 +192,13 @@ const popup = {
     
     show() {
         if (this.isClosed()) return;
+        
+        // 모바일에서는 팝업 표시하지 않음
+        if (isMobileDevice()) {
+            log('모바일 기기에서는 팝업을 표시하지 않습니다');
+            return;
+        }
+        
         const el = getElement('posPopupOverlay');
         if (el) {
             el.classList.add('pos-show');
