@@ -1,4 +1,3 @@
-<script>
 setTimeout(function () {
 	const dragSensitivity = 0.55; // 드래그 민감도
 	const clickTolerance = 0;   // 클릭 간주 기준 (px), 0: 클릭 시 이동 안함. 클릭 시 이동하려면 1~3값 설정 고려.
@@ -179,4 +178,3 @@ function setupDragEvents(dragTarget, animatedBanner, threshold, link, direction)
 		});
 	});
 }, 100);
-</script>
