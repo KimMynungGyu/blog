@@ -14,9 +14,9 @@ setTimeout(function () {
 			trackingCode: 'AF1728660', // 본인의 추적 코드로 대체
 			subId: '',
 			tsource: '',
-			background: 'https://tistory1.daumcdn.net/tistory/8074023/skin/images/600x600-back2.jpg',
-			cover: 'https://tistory1.daumcdn.net/tistory/8074023/skin/images/WOW-30Ox25O-cover-left.png',
-			arrowIcon: 'https://tistory1.daumcdn.net/tistory/8074023/skin/images/arrowbtn.png',
+			background: 'https://cdn.jsdelivr.net/gh/KimMynungGyu/blog@main/600x600-back2.webp',
+			cover: 'https://cdn.jsdelivr.net/gh/KimMynungGyu/blog@main/WOW-30Ox25O-cover-left.webp',
+			arrowIcon: 'https://cdn.jsdelivr.net/gh/KimMynungGyu/blog@main/arrowbtn.webp',
 			dragDirection: 'left'
 		},
 		{
@@ -27,9 +27,9 @@ setTimeout(function () {
 			trackingCode: 'AF1728660', // 본인의 추적 코드로 대체
 			subId: '',
 			tsource: '',
-			background: 'https://tistory1.daumcdn.net/tistory/8074023/skin/images/640x300-back2.jpg',
-			cover: 'https://tistory1.daumcdn.net/tistory/8074023/skin/images/WOW-32Ox15O-cover-left.png',
-			arrowIcon: 'https://tistory1.daumcdn.net/tistory/8074023/skin/images/arrowbtn.png',
+			background: 'https://cdn.jsdelivr.net/gh/KimMynungGyu/blog@main/640x300-back2.webp',
+			cover: 'https://cdn.jsdelivr.net/gh/KimMynungGyu/blog@main/WOW-32Ox15O-cover-left.webp',
+			arrowIcon: 'https://cdn.jsdelivr.net/gh/KimMynungGyu/blog@main/arrowbtn.webp',
 			dragDirection: 'left'
 		},
 		{
@@ -40,9 +40,9 @@ setTimeout(function () {
 			trackingCode: 'AF1728660', // 본인의 추적 코드로 대체
 			subId: '',
 			tsource: '',
-			background: 'https://tistory1.daumcdn.net/tistory/8074023/skin/images/600x500-back2.jpg',
-			cover: 'https://tistory1.daumcdn.net/tistory/8074023/skin/images/WOW-30Ox25O-cover-left.png',
-			arrowIcon: 'https://tistory1.daumcdn.net/tistory/8074023/skin/images/arrowbtn.png',
+			background: 'https://cdn.jsdelivr.net/gh/KimMynungGyu/blog@main/600x500-back2.webp',
+			cover: 'https://cdn.jsdelivr.net/gh/KimMynungGyu/blog@main/WOW-30Ox25O-cover-left.webp',
+			arrowIcon: 'https://cdn.jsdelivr.net/gh/KimMynungGyu/blog@main/arrowbtn.webp',
 			dragDirection: 'left'
 		},
 		{
@@ -53,9 +53,9 @@ setTimeout(function () {
 			trackingCode: 'AF1728660', // 본인의 추적 코드로 대체
 			subId: '',
 			tsource: '',
-			background: 'https://tistory1.daumcdn.net/tistory/8074023/skin/images/600x500-back3.jpg',
-			cover: 'https://tistory1.daumcdn.net/tistory/8074023/skin/images/WOW-30Ox25O-cover-right.png',
-			arrowIcon: 'https://tistory1.daumcdn.net/tistory/8074023/skin/images/arrow-right.png',
+			background: 'https://cdn.jsdelivr.net/gh/KimMynungGyu/blog@main/600x500-back3.webp',
+			cover: 'https://cdn.jsdelivr.net/gh/KimMynungGyu/blog@main/WOW-30Ox25O-cover-right.webp',
+			arrowIcon: 'https://cdn.jsdelivr.net/gh/KimMynungGyu/blog@main/arrow-right.webp',
 			dragDirection: 'right'
 		}
 	];
